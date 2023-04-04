@@ -1,5 +1,8 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Channel } from '../../channel/models/channel.model';
+import { LikedVideo } from '../../liked_video/models/liked_video.model';
+import { Comment } from '../../comment/models/comment.model';
+import { Subscription } from '../../subscription/models/subscription.model';
 
 interface UserAttrs {
   id: string;
@@ -61,4 +64,13 @@ export class User extends Model<User, UserAttrs> {
 
   @HasMany(() => Channel)
   channel: Channel;
+
+  @HasMany(() => LikedVideo)
+  likedVideo: LikedVideo;
+
+  @HasMany(() => Comment)
+  comment: Comment;
+
+  @HasMany(() => Subscription)
+  subscription: Subscription;
 }

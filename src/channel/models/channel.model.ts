@@ -11,6 +11,9 @@ import { User } from '../../user/models/user.model';
 import { Location } from '../../location/models/location.model';
 import { SocialMediaLink } from '../../social_media_link/models/social_media_link.model';
 import sequelize from 'sequelize';
+import { Video } from '../../video/models/video.model';
+import { Playlist } from '../../playlist/models/playlist.model';
+import { Subscription } from '../../subscription/models/subscription.model';
 
 interface ChannelAttrs {
   id: string;
@@ -95,7 +98,7 @@ export class Channel extends Model<Channel, ChannelAttrs> {
 
   @Column({
     type: DataType.DATE,
-    defaultValue: sequelize.literal('CURRENT_DATE'),
+    defaultValue: sequelize.literal('NOW()'),
   })
   joined_at: Date;
 
@@ -113,6 +116,15 @@ export class Channel extends Model<Channel, ChannelAttrs> {
 
   @HasMany(() => SocialMediaLink)
   socialMediaLink: SocialMediaLink;
+
+  @HasMany(() => Video)
+  video: Video;
+
+  @HasMany(() => Playlist)
+  playlist: Playlist;
+
+  @HasMany(() => Subscription)
+  subscription: Subscription;
 
   @BelongsTo(() => User)
   user: User;

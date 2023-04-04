@@ -10,6 +10,19 @@ import { SocialMediaLinkModule } from './social_media_link/social_media_link.mod
 import { Channel } from './channel/models/channel.model';
 import { Location } from './location/models/location.model';
 import { SocialMediaLink } from './social_media_link/models/social_media_link.model';
+import { VideoModule } from './video/video.module';
+import { Video } from './video/models/video.model';
+import { LikedVideoModule } from './liked_video/liked_video.module';
+import { LikedVideo } from './liked_video/models/liked_video.model';
+import { CommentModule } from './comment/comment.module';
+import { Comment } from './comment/models/comment.model';
+import { PlaylistModule } from './playlist/playlist.module';
+import { Playlist } from './playlist/models/playlist.model';
+import { PlaylistVideoModule } from './playlist_video/playlist_video.module';
+import { PlaylistVideo } from './playlist_video/models/playlist_video.model';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { Subscription } from './subscription/models/subscription.model';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -24,7 +37,18 @@ import { SocialMediaLink } from './social_media_link/models/social_media_link.mo
       username: process.env.POSTGRES_USER,
       password: String(process.env.POSTGRES_PASSWORD),
       database: process.env.POSTGRES_DB,
-      models: [User, Channel, Location, SocialMediaLink],
+      models: [
+        User,
+        Channel,
+        Location,
+        SocialMediaLink,
+        Video,
+        LikedVideo,
+        Comment,
+        Playlist,
+        PlaylistVideo,
+        Subscription,
+      ],
       autoLoadModels: true,
       logging: false,
     }),
@@ -33,6 +57,13 @@ import { SocialMediaLink } from './social_media_link/models/social_media_link.mo
     ChannelModule,
     LocationModule,
     SocialMediaLinkModule,
+    VideoModule,
+    LikedVideoModule,
+    CommentModule,
+    PlaylistModule,
+    PlaylistVideoModule,
+    SubscriptionModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],
