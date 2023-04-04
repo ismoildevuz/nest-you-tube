@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Channel } from '../../channel/models/channel.model';
 
 interface UserAttrs {
   id: string;
@@ -57,4 +58,7 @@ export class User extends Model<User, UserAttrs> {
     type: DataType.STRING,
   })
   activation_link: string;
+
+  @HasMany(() => Channel)
+  channel: Channel;
 }

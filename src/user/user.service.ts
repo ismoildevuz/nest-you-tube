@@ -177,29 +177,32 @@ export class UserService {
   }
 
   async findAll() {
-    return this.userRepository.findAll();
+    return this.userRepository.findAll({ include: { all: true } });
   }
 
   async findOne(id: string) {
-    return this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
     const updatedUser = await this.userRepository.update(updateUserDto, {
       where: { id },
       returning: true,
     });
-    if (!updatedUser[1][0]) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return updatedUser[1][0];
+    return this.findOne(id);
   }
 
   async remove(id: string) {
+    const user = await this.findOne(id);
     const deletedUser = await this.userRepository.destroy({ where: { id } });
-    if (!deletedUser) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return {message: "User deleted"};
+    return { message: 'User deleted' };
   }
 }
