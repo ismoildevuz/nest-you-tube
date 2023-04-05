@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './models/user.model';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CookieGetter } from '../decorators/cookieGetter.decorator';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -44,7 +44,7 @@ export class UserController {
     return this.userService.login(loginUserDto, res);
   }
 
-  @ApiOperation({ summary: 'Logout qilish' })
+  @ApiOperation({ summary: 'Logout action' })
   @ApiResponse({ status: 200, type: User })
   @HttpCode(HttpStatus.OK)
   @Post('signout')
