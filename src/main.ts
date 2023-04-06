@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 // import { ValidationPipe } from './pipes/validation.pipe';
 
 const start = async () => {
@@ -12,6 +13,7 @@ const start = async () => {
 
     app.use(cookieParser());
     app.setGlobalPrefix('api');
+    app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalPipes(new ValidationPipe());
 
     const config = new DocumentBuilder()
