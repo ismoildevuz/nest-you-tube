@@ -19,6 +19,14 @@ import { LoginAdminDto } from './dto/login-admin.dto';
 import { OtpService } from '../otp/otp.service';
 import { PhoneAdminDto } from './dto/phone-admin.dto';
 import { VerifyOtpDto } from '../otp/dto/verify-otp.dto';
+import { ActivateVideoDto } from './dto/activate-video.dto';
+import { VideoService } from './../video/video.service';
+import { ActivateUserDto } from './dto/activate-user.dto';
+import { ActivateCommentDto } from './dto/activate-comment.dto';
+import { ActivateChannelDto } from './dto/activate-channel.dto';
+import { ChannelService } from '../channel/channel.service';
+import { CommentService } from '../comment/comment.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AdminService {
@@ -27,6 +35,10 @@ export class AdminService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly otpService: OtpService,
+    private readonly videoService: VideoService,
+    private readonly userService: UserService,
+    private readonly commentService: CommentService,
+    private readonly channelService: ChannelService,
   ) {}
 
   async registration(createAdminDto: CreateAdminDto, res: Response) {
@@ -163,10 +175,75 @@ export class AdminService {
     return otpResponse;
   }
 
+  async avtivateVideo(activateVideoDto: ActivateVideoDto) {
+    const video = await this.videoService.updateIsActive(
+      activateVideoDto.video_id,
+      true,
+    );
+    return video;
+  }
+
+  async deavtivateVideo(activateVideoDto: ActivateVideoDto) {
+    const video = await this.videoService.updateIsActive(
+      activateVideoDto.video_id,
+      false,
+    );
+    return video;
+  }
+
+  async avtivateChannel(activateChannelDto: ActivateChannelDto) {
+    const channel = await this.channelService.updateIsActive(
+      activateChannelDto.channel_id,
+      true,
+    );
+    return channel;
+  }
+
+  async deavtivateChannel(activateChannelDto: ActivateChannelDto) {
+    const channel = await this.channelService.updateIsActive(
+      activateChannelDto.channel_id,
+      false,
+    );
+    return channel;
+  }
+
+  async avtivateComment(activateCommentDto: ActivateCommentDto) {
+    const comment = await this.commentService.updateIsActive(
+      activateCommentDto.comment_id,
+      true,
+    );
+    return comment;
+  }
+
+  async deavtivateComment(activateCommentDto: ActivateCommentDto) {
+    const comment = await this.commentService.updateIsActive(
+      activateCommentDto.comment_id,
+      false,
+    );
+    return comment;
+  }
+
+  async avtivateUser(activateUserDto: ActivateUserDto) {
+    const user = await this.userService.updateIsActive(
+      activateUserDto.user_id,
+      true,
+    );
+    return user;
+  }
+
+  async deavtivateUser(activateUserDto: ActivateUserDto) {
+    const user = await this.userService.updateIsActive(
+      activateUserDto.user_id,
+      false,
+    );
+    return user;
+  }
+
   async getTokens(admin: Admin) {
     const jwtPayload = {
       id: admin.id,
       is_active: admin.is_active,
+      is_creator: admin.is_creator,
     };
 
     const [accessToken, refreshToken] = await Promise.all([

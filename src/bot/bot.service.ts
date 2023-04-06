@@ -50,7 +50,7 @@ export class BotService {
     } else {
       await this.bot.telegram.sendChatAction(user_id, 'typing');
       await ctx.reply(
-        `Bu bot orqali e-navbat dasturi bilan muloqot o'rnatiladi`,
+        `Bu bot orqali YouTube platformasi bilan muloqot o'rnatiladi`,
         {
           parse_mode: 'HTML',
           ...Markup.removeKeyboard(),

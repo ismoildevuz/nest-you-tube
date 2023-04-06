@@ -6,6 +6,10 @@ import { Admin } from './models/admin.model';
 import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from '../mail/mail.module';
 import { OtpModule } from '../otp/otp.module';
+import { VideoModule } from '../video/video.module';
+import { UserModule } from '../user/user.module';
+import { CommentModule } from '../comment/comment.module';
+import { ChannelModule } from '../channel/channel.module';
 
 @Module({
   imports: [
@@ -13,6 +17,10 @@ import { OtpModule } from '../otp/otp.module';
     JwtModule.register({}),
     MailModule,
     OtpModule,
+    VideoModule,
+    UserModule,
+    CommentModule,
+    ChannelModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

@@ -6,12 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Location } from './models/location.model';
+import { JwtAuthActiveGuard } from '../guards/jwt-auth-active.guard';
+import { AdminCreatorGuard } from '../guards/admin-creator.guard';
 
 @ApiTags('Location')
 @Controller('location')
@@ -20,6 +23,8 @@ export class LocationController {
 
   @ApiOperation({ summary: 'Create a new location' })
   @ApiResponse({ status: 201, type: Location })
+  @UseGuards(AdminCreatorGuard)
+  @UseGuards(JwtAuthActiveGuard)
   @Post()
   async create(@Body() createLocationDto: CreateLocationDto) {
     return this.locationService.create(createLocationDto);
@@ -27,6 +32,7 @@ export class LocationController {
 
   @ApiOperation({ summary: 'Get all locations' })
   @ApiResponse({ status: 200, type: [Location] })
+  @UseGuards(JwtAuthActiveGuard)
   @Get()
   async findAll() {
     return this.locationService.findAll();
@@ -34,6 +40,7 @@ export class LocationController {
 
   @ApiOperation({ summary: 'Get a location by ID' })
   @ApiResponse({ status: 200, type: Location })
+  @UseGuards(JwtAuthActiveGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.locationService.findOne(id);
@@ -41,6 +48,8 @@ export class LocationController {
 
   @ApiOperation({ summary: 'Update a location by ID' })
   @ApiResponse({ status: 200, type: Location })
+  @UseGuards(AdminCreatorGuard)
+  @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -51,6 +60,8 @@ export class LocationController {
 
   @ApiOperation({ summary: 'Delete a location by ID' })
   @ApiResponse({ status: 200, type: Location })
+  @UseGuards(AdminCreatorGuard)
+  @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.locationService.remove(id);

@@ -16,6 +16,7 @@ interface CommentAttrs {
   video_id: string;
   created_at: Date;
   body: string;
+  is_active: boolean;
 }
 
 @Table({ tableName: 'comment' })
@@ -49,6 +50,12 @@ export class Comment extends Model<Comment, CommentAttrs> {
     type: DataType.TEXT,
   })
   body: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+  })
+  is_active: boolean;
 
   @BelongsTo(() => User)
   user: User;

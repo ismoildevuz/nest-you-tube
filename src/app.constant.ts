@@ -1,1 +1,1 @@
-export const BOT_NAME = 'ismoilneststadiumbot';
+export const BOT_NAME = 'nestyoutubebot';

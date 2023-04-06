@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Comment } from './models/comment.model';
+import { JwtAuthActiveGuard } from '../guards/jwt-auth-active.guard';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -20,6 +22,7 @@ export class CommentController {
 
   @ApiOperation({ summary: 'Create a new comment' })
   @ApiResponse({ status: 201, type: Comment })
+  @UseGuards(JwtAuthActiveGuard)
   @Post()
   async create(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.create(createCommentDto);
@@ -27,6 +30,7 @@ export class CommentController {
 
   @ApiOperation({ summary: 'Get all comments' })
   @ApiResponse({ status: 200, type: [Comment] })
+  @UseGuards(JwtAuthActiveGuard)
   @Get()
   async findAll() {
     return this.commentService.findAll();
@@ -34,6 +38,7 @@ export class CommentController {
 
   @ApiOperation({ summary: 'Get a comment by ID' })
   @ApiResponse({ status: 200, type: Comment })
+  @UseGuards(JwtAuthActiveGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.commentService.findOne(id);
@@ -41,6 +46,7 @@ export class CommentController {
 
   @ApiOperation({ summary: 'Update a comment by ID' })
   @ApiResponse({ status: 200, type: Comment })
+  @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -51,6 +57,7 @@ export class CommentController {
 
   @ApiOperation({ summary: 'Delete a comment by ID' })
   @ApiResponse({ status: 200, type: Comment })
+  @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.commentService.remove(id);

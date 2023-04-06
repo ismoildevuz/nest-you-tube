@@ -3,19 +3,40 @@ import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Subscription } from './models/subscription.model';
 import { v4 as uuidv4, v4 } from 'uuid';
+import { ChannelService } from '../channel/channel.service';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     @InjectModel(Subscription)
     private subscriptionRepository: typeof Subscription,
+    private readonly channelService: ChannelService,
   ) {}
 
   async create(createSubscriptionDto: CreateSubscriptionDto) {
-    return this.subscriptionRepository.create({
+    const { user_id, channel_id } = createSubscriptionDto;
+    const subscription = await this.getByUserIdAndChannelId(
+      user_id,
+      channel_id,
+    );
+    const channel = await this.channelService.findOne(channel_id);
+    if (subscription) {
+      await this.remove(subscription.id);
+      await this.channelService.updateFollowers(
+        channel_id,
+        Number(channel.followers) - 1,
+      );
+      return { message: 'Subscription canceled' };
+    }
+    const newSubscription = await this.subscriptionRepository.create({
       id: uuidv4(),
       ...createSubscriptionDto,
     });
+    const followers = await this.subscriptionRepository.findAll({
+      where: { channel_id },
+    });
+    await this.channelService.updateFollowers(channel_id, followers.length);
+    return { message: 'Subscribed to channel' };
   }
 
   async findAll() {
@@ -39,5 +60,12 @@ export class SubscriptionService {
       where: { id },
     });
     return { message: 'Subscription deleted' };
+  }
+
+  async getByUserIdAndChannelId(user_id: string, channel_id: string) {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: { user_id, channel_id },
+    });
+    return subscription;
   }
 }

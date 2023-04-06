@@ -16,6 +16,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { MailService } from '../mail/mail.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { SubscriptionService } from '../subscription/subscription.service';
+import { LikedVideoService } from './../liked_video/liked_video.service';
+import { CommentService } from './../comment/comment.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +26,9 @@ export class UserService {
     @InjectModel(User) private userRepository: typeof User,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly subscriptionService: SubscriptionService,
+    private readonly likedVideoService: LikedVideoService,
+    private readonly commentService: CommentService,
   ) {}
 
   async registration(createUserDto: CreateUserDto, res: Response) {
@@ -139,6 +145,68 @@ export class UserService {
     return response;
   }
 
+  async subscribe(refreshToken: string, channel_id: string) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    return this.subscriptionService.create({ user_id: user.id, channel_id });
+  }
+
+  async like(refreshToken: string, video_id: string) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    return this.likedVideoService.create({ user_id: user.id, video_id });
+  }
+
+  async comment(refreshToken: string, video_id: string, body: string) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    return this.commentService.create({ user_id: user.id, video_id, body });
+  }
+
+  async findAll() {
+    return this.userRepository.findAll({
+      where: { is_active: true },
+      include: { all: true },
+    });
+  }
+
+  async findOne(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id, is_active: true },
+      include: { all: true },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+    const username = await this.getUserByUsername(updateUserDto.username);
+    if (username) {
+      if (username.id != user.id) {
+        throw new BadRequestException('Username already taken by someone!');
+      }
+    }
+    const updatedUser = await this.userRepository.update(updateUserDto, {
+      where: { id, is_active: true },
+      returning: true,
+    });
+    return this.findOne(id);
+  }
+
+  async remove(id: string) {
+    const user = await this.findOne(id);
+    const deletedUser = await this.userRepository.destroy({
+      where: { id, is_active: true },
+    });
+    return { message: 'User deleted' };
+  }
+
   async getTokens(user: User) {
     const jwtPayload = {
       id: user.id,
@@ -176,11 +244,7 @@ export class UserService {
     return user;
   }
 
-  async findAll() {
-    return this.userRepository.findAll({ include: { all: true } });
-  }
-
-  async findOne(id: string) {
+  async getUserById(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
       include: { all: true },
@@ -191,24 +255,15 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.findOne(id);
-    const username = await this.getUserByUsername(updateUserDto.username);
-    if (username) {
-      if (username.id != user.id) {
-        throw new BadRequestException('Username already taken by someone!');
-      }
-    }
-    const updatedUser = await this.userRepository.update(updateUserDto, {
-      where: { id },
-      returning: true,
-    });
-    return this.findOne(id);
-  }
-
-  async remove(id: string) {
-    const user = await this.findOne(id);
-    const deletedUser = await this.userRepository.destroy({ where: { id } });
-    return { message: 'User deleted' };
+  async updateIsActive(id: string, is_active: boolean) {
+    const user = await this.getUserById(id);
+    const updatedUser = await this.userRepository.update(
+      { is_active },
+      {
+        where: { id },
+        returning: true,
+      },
+    );
+    return this.getUserById(id);
   }
 }

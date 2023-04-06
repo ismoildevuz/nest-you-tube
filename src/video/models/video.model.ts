@@ -22,6 +22,7 @@ interface VideoAttrs {
   created_at: Date;
   description: string;
   video_length: number;
+  is_active: boolean;
 }
 
 @Table({ tableName: 'video' })
@@ -72,6 +73,12 @@ export class Video extends Model<Video, VideoAttrs> {
     defaultValue: 0,
   })
   video_length: number;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+  })
+  is_active: boolean;
 
   @HasMany(() => LikedVideo)
   likedVideo: LikedVideo;

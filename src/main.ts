@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from './pipes/validation.pipe';
-// import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
+// import { ValidationPipe } from './pipes/validation.pipe';
 
 const start = async () => {
   try {
@@ -22,6 +22,18 @@ const start = async () => {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/api/docs', app, document);
+
+    app.use((req, res, next) => {
+      const startTime = Date.now();
+      res.on('finish', () => {
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+        console.log(
+          `${req.method} ${req.originalUrl} ${res.statusCode} ${responseTime}ms`,
+        );
+      });
+      next();
+    });
 
     app.listen(PORT, () => {
       console.log(`Port: ${PORT}. Server is running...`);
