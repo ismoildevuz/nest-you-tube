@@ -193,6 +193,12 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
+    const username = await this.getUserByUsername(updateUserDto.username);
+    if (username) {
+      if (username.id != user.id) {
+        throw new BadRequestException('Username already taken by someone!');
+      }
+    }
     const updatedUser = await this.userRepository.update(updateUserDto, {
       where: { id },
       returning: true,
