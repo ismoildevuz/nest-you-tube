@@ -14,6 +14,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Comment } from './models/comment.model';
 import { JwtAuthActiveGuard } from '../guards/jwt-auth-active.guard';
+import { CookieGetter } from '../decorators/cookieGetter.decorator';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -49,17 +50,21 @@ export class CommentController {
   @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
   async update(
+    @CookieGetter('refresh_token') refreshToken: string,
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    return this.commentService.update(id, updateCommentDto);
+    return this.commentService.update(id, refreshToken, updateCommentDto);
   }
 
   @ApiOperation({ summary: 'Delete a comment by ID' })
   @ApiResponse({ status: 200, type: Comment })
   @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.commentService.remove(id);
+  async remove(
+    @CookieGetter('refresh_token') refreshToken: string,
+    @Param('id') id: string,
+  ) {
+    return this.commentService.remove(id, refreshToken);
   }
 }

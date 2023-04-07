@@ -6,15 +6,29 @@ import { Video } from './models/video.model';
 import { v4 as uuidv4, v4 } from 'uuid';
 import { ChannelService } from './../channel/channel.service';
 import { Channel } from '../channel/models/channel.model';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '../user/models/user.model';
 
 @Injectable()
 export class VideoService {
   constructor(
     @InjectModel(Video) private videoRepository: typeof Video,
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    @InjectModel(User) private userRepository: typeof User,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async create(createVideoDto: CreateVideoDto) {
+  async create(refreshToken: string, createVideoDto: CreateVideoDto) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    const userExist = await this.userRepository.findOne({
+      where: { id: user.id, is_active: true },
+      include: { all: true },
+    });
+    if (!userExist) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     const { channel_id } = createVideoDto;
     const channel = await this.channelRepository.findOne({
       where: { id: channel_id, is_active: true },
@@ -22,6 +36,12 @@ export class VideoService {
     });
     if (!channel) {
       throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.id != channel.user_id) {
+      throw new HttpException(
+        'Channel does not belong to this user',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const video = await this.videoRepository.create({
       id: uuidv4(),

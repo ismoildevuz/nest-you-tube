@@ -8,10 +8,11 @@ import { PlaylistModule } from '../playlist/playlist.module';
 import { PlaylistVideoModule } from '../playlist_video/playlist_video.module';
 import { VideoModule } from '../video/video.module';
 import { LocationModule } from '../location/location.module';
+import { User } from '../user/models/user.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Channel]),
+    SequelizeModule.forFeature([Channel, User]),
     JwtModule.register({}),
     LocationModule,
     PlaylistModule,

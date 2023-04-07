@@ -57,7 +57,6 @@ export class UserController {
   @ApiOperation({ summary: 'Log out a user' })
   @ApiResponse({ status: 200, type: User })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(UserSelfGuard)
   @UseGuards(JwtAuthActiveGuard)
   @Post('signout')
   async logout(
@@ -128,8 +127,12 @@ export class UserController {
   @UseGuards(UserSelfGuard)
   @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  async update(
+    @CookieGetter('refresh_token') refreshToken: string,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.update(id, refreshToken, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Delete a user by ID' })
@@ -137,7 +140,10 @@ export class UserController {
   @UseGuards(UserSelfGuard)
   @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  async remove(
+    @CookieGetter('refresh_token') refreshToken: string,
+    @Param('id') id: string,
+  ) {
+    return this.userService.remove(id, refreshToken);
   }
 }

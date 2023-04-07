@@ -4,17 +4,26 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Subscription } from './models/subscription.model';
 import { v4 as uuidv4, v4 } from 'uuid';
 import { ChannelService } from '../channel/channel.service';
+import { User } from '../user/models/user.model';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     @InjectModel(Subscription)
     private subscriptionRepository: typeof Subscription,
+    @InjectModel(User) private userRepository: typeof User,
     private readonly channelService: ChannelService,
   ) {}
 
   async create(createSubscriptionDto: CreateSubscriptionDto) {
     const { user_id, channel_id } = createSubscriptionDto;
+    const user = await this.userRepository.findOne({
+      where: { id: user_id, is_active: true },
+      include: { all: true },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     const subscription = await this.getByUserIdAndChannelId(
       user_id,
       channel_id,

@@ -59,7 +59,6 @@ export class AdminController {
   @ApiOperation({ summary: 'Log out an admin' })
   @ApiResponse({ status: 200, type: Admin })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(UserSelfGuard)
   @UseGuards(JwtAuthActiveGuard)
   @Post('signout')
   async logout(

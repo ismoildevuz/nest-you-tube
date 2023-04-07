@@ -156,7 +156,10 @@ export class UserService {
     const user = await this.jwtService.verify(refreshToken, {
       secret: process.env.REFRESH_TOKEN_KEY,
     });
-    return this.likedVideoService.create({ user_id: user.id, video_id });
+    return this.likedVideoService.create(
+      { user_id: user.id, video_id },
+      refreshToken,
+    );
   }
 
   async comment(refreshToken: string, video_id: string, body: string) {
@@ -184,8 +187,8 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.findOne(id);
+  async update(id: string, refreshToken: string, updateUserDto: UpdateUserDto) {
+    const user = await this.isOwner(id, refreshToken);
     const username = await this.getUserByUsername(updateUserDto.username);
     if (username) {
       if (username.id != user.id) {
@@ -199,12 +202,29 @@ export class UserService {
     return this.findOne(id);
   }
 
-  async remove(id: string) {
-    const user = await this.findOne(id);
+  async remove(id: string, refreshToken: string) {
+    const user = await this.isOwner(id, refreshToken);
     const deletedUser = await this.userRepository.destroy({
       where: { id, is_active: true },
     });
     return { message: 'User deleted' };
+  }
+
+  async isOwner(user_id: string, refreshToken: string) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    const userExist = await this.findOne(user.id);
+    if (!userExist) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (userExist.id != user_id) {
+      throw new HttpException(
+        'You do not have permission to do this',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return userExist;
   }
 
   async getTokens(user: User) {

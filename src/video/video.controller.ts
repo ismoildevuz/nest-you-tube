@@ -14,6 +14,7 @@ import { UpdateVideoDto } from './dto/update-video.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Video } from './models/video.model';
 import { JwtAuthActiveGuard } from '../guards/jwt-auth-active.guard';
+import { CookieGetter } from '../decorators/cookieGetter.decorator';
 
 @ApiTags('Video')
 @Controller('video')
@@ -24,8 +25,11 @@ export class VideoController {
   @ApiResponse({ status: 201, type: Video })
   @UseGuards(JwtAuthActiveGuard)
   @Post()
-  async create(@Body() createVideoDto: CreateVideoDto) {
-    return this.videoService.create(createVideoDto);
+  async create(
+    @CookieGetter('refresh_token') refreshToken: string,
+    @Body() createVideoDto: CreateVideoDto,
+  ) {
+    return this.videoService.create(refreshToken, createVideoDto);
   }
 
   @ApiOperation({ summary: 'Get all videos' })

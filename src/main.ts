@@ -13,7 +13,7 @@ const start = async () => {
 
     app.use(cookieParser());
     app.setGlobalPrefix('api');
-    app.useGlobalFilters(new HttpExceptionFilter());
+    // app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalPipes(new ValidationPipe());
 
     const config = new DocumentBuilder()

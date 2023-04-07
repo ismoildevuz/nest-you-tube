@@ -13,15 +13,19 @@ import { JwtService } from '@nestjs/jwt';
 import { PlaylistService } from '../playlist/playlist.service';
 import { PlaylistVideoService } from './../playlist_video/playlist_video.service';
 import { VideoService } from './../video/video.service';
+import { User } from '../user/models/user.model';
+import { LocationService } from './../location/location.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    @InjectModel(User) private userRepository: typeof User,
     private readonly jwtService: JwtService,
     private readonly playlistService: PlaylistService,
     private readonly playlistVideoService: PlaylistVideoService,
     private readonly videoService: VideoService,
+    private readonly locationService: LocationService,
   ) {}
 
   async playlist(refreshToken: string, name: string) {
@@ -53,7 +57,15 @@ export class ChannelService {
   }
 
   async create(createChannelDto: CreateChannelDto) {
-    const { user_id } = createChannelDto;
+    const { user_id, location_id } = createChannelDto;
+    const user = await this.userRepository.findOne({
+      where: { id: user_id, is_active: true },
+      include: { all: true },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const location = await this.locationService.findOne(location_id);
     const channel = await this.getByUserId(user_id);
     if (channel) {
       throw new BadRequestException('User already created channel before');

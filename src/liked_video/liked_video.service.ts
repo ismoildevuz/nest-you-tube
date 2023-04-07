@@ -5,6 +5,7 @@ import { LikedVideo } from './models/liked_video.model';
 import { v4 as uuidv4, v4 } from 'uuid';
 import { VideoService } from './../video/video.service';
 import { User } from '../user/models/user.model';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class LikedVideoService {
@@ -12,21 +13,16 @@ export class LikedVideoService {
     @InjectModel(LikedVideo) private likedVideoRepository: typeof LikedVideo,
     @InjectModel(User) private userRepository: typeof User,
     private readonly videoService: VideoService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async create(createLikedVideoDto: CreateLikedVideoDto) {
+  async create(createLikedVideoDto: CreateLikedVideoDto, refreshToken: string) {
     const { user_id, video_id } = createLikedVideoDto;
     const like = await this.getByUserIdAndVideoId(user_id, video_id);
-    const user = await this.userRepository.findOne({
-      where: { id: user_id, is_active: true },
-      include: { all: true },
-    });
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+    const user = await this.findUser(user_id)
     const video = await this.videoService.findOne(video_id);
     if (like) {
-      await this.remove(like.id);
+      await this.remove(like.id, refreshToken);
       await this.videoService.updateLikes(video.id, Number(video.likes) - 1);
       return { message: 'Like canceled' };
     }
@@ -53,12 +49,38 @@ export class LikedVideoService {
     return likedVideo;
   }
 
-  async remove(id: string) {
+  async remove(id: string, refreshToken: string) {
     const likedVideo = await this.findOne(id);
+    const user = await this.isOwner(likedVideo.user_id, refreshToken);
     const deletedLikedVideo = await this.likedVideoRepository.destroy({
       where: { id },
     });
     return { message: 'Liked Video deleted' };
+  }
+
+  async isOwner(user_id: string, refreshToken: string) {
+    const user = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_TOKEN_KEY,
+    });
+    const userExist = await this.findUser(user.id);
+    if (userExist.id != user_id) {
+      throw new HttpException(
+        'You do not have permission to do this',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return userExist;
+  }
+
+  async findUser(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id, is_active: true },
+      include: { all: true },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   async getByUserIdAndVideoId(user_id: string, video_id: string) {
