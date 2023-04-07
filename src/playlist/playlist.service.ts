@@ -4,14 +4,24 @@ import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Playlist } from './models/playlist.model';
 import { v4 as uuidv4, v4 } from 'uuid';
+import { Channel } from '../channel/models/channel.model';
 
 @Injectable()
 export class PlaylistService {
   constructor(
     @InjectModel(Playlist) private playlistRepository: typeof Playlist,
+    @InjectModel(Channel) private channelRepository: typeof Channel,
   ) {}
 
   async create(createPlaylistDto: CreatePlaylistDto) {
+    const { channel_id, name } = createPlaylistDto;
+    const channel = await this.channelRepository.findOne({
+      where: { id: channel_id, is_active: true },
+      include: { all: true },
+    });
+    if (!channel) {
+      throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+    }
     return this.playlistRepository.create({
       id: uuidv4(),
       ...createPlaylistDto,
