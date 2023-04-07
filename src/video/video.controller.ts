@@ -26,10 +26,10 @@ export class VideoController {
   @UseGuards(JwtAuthActiveGuard)
   @Post()
   async create(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() createVideoDto: CreateVideoDto,
   ) {
-    return this.videoService.create(refreshToken, createVideoDto);
+    return this.videoService.create(accessToken, createVideoDto);
   }
 
   @ApiOperation({ summary: 'Get all videos' })

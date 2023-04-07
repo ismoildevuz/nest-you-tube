@@ -53,11 +53,11 @@ export class CommentService {
 
   async update(
     id: string,
-    refreshToken: string,
+    accessToken: string,
     updateCommentDto: UpdateCommentDto,
   ) {
     const comment = await this.findOne(id);
-    const user = await this.isOwner(comment.user_id, refreshToken);
+    const user = await this.isOwner(comment.user_id, accessToken);
     const updatedComment = await this.commentRepository.update(
       updateCommentDto,
       {
@@ -68,18 +68,18 @@ export class CommentService {
     return this.findOne(id);
   }
 
-  async remove(id: string, refreshToken: string) {
+  async remove(id: string, accessToken: string) {
     const comment = await this.findOne(id);
-    const user = await this.isOwner(comment.user_id, refreshToken);
+    const user = await this.isOwner(comment.user_id, accessToken);
     const deletedComment = await this.commentRepository.destroy({
       where: { id, is_active: true },
     });
     return { message: 'Comment deleted' };
   }
 
-  async isOwner(user_id: string, refreshToken: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async isOwner(user_id: string, accessToken: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const userExist = await this.findUser(user.id);
     if (userExist.id != user_id) {

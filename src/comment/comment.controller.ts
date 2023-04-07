@@ -50,11 +50,11 @@ export class CommentController {
   @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
   async update(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    return this.commentService.update(id, refreshToken, updateCommentDto);
+    return this.commentService.update(id, accessToken, updateCommentDto);
   }
 
   @ApiOperation({ summary: 'Delete a comment by ID' })
@@ -62,9 +62,9 @@ export class CommentController {
   @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
   async remove(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Param('id') id: string,
   ) {
-    return this.commentService.remove(id, refreshToken);
+    return this.commentService.remove(id, accessToken);
   }
 }

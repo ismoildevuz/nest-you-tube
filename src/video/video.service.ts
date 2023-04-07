@@ -18,9 +18,9 @@ export class VideoService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(refreshToken: string, createVideoDto: CreateVideoDto) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async create(accessToken: string, createVideoDto: CreateVideoDto) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const userExist = await this.userRepository.findOne({
       where: { id: user.id, is_active: true },

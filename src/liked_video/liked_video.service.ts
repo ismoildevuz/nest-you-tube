@@ -16,13 +16,13 @@ export class LikedVideoService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(createLikedVideoDto: CreateLikedVideoDto, refreshToken: string) {
+  async create(createLikedVideoDto: CreateLikedVideoDto, accessToken: string) {
     const { user_id, video_id } = createLikedVideoDto;
     const like = await this.getByUserIdAndVideoId(user_id, video_id);
     const user = await this.findUser(user_id)
     const video = await this.videoService.findOne(video_id);
     if (like) {
-      await this.remove(like.id, refreshToken);
+      await this.remove(like.id, accessToken);
       await this.videoService.updateLikes(video.id, Number(video.likes) - 1);
       return { message: 'Like canceled' };
     }
@@ -49,18 +49,18 @@ export class LikedVideoService {
     return likedVideo;
   }
 
-  async remove(id: string, refreshToken: string) {
+  async remove(id: string, accessToken: string) {
     const likedVideo = await this.findOne(id);
-    const user = await this.isOwner(likedVideo.user_id, refreshToken);
+    const user = await this.isOwner(likedVideo.user_id, accessToken);
     const deletedLikedVideo = await this.likedVideoRepository.destroy({
       where: { id },
     });
     return { message: 'Liked Video deleted' };
   }
 
-  async isOwner(user_id: string, refreshToken: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async isOwner(user_id: string, accessToken: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const userExist = await this.findUser(user.id);
     if (userExist.id != user_id) {

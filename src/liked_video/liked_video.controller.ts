@@ -24,10 +24,10 @@ export class LikedVideoController {
   @UseGuards(JwtAuthActiveGuard)
   @Post()
   async create(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() createLikedVideoDto: CreateLikedVideoDto,
   ) {
-    return this.likedVideoService.create(createLikedVideoDto, refreshToken);
+    return this.likedVideoService.create(createLikedVideoDto, accessToken);
   }
 
   @ApiOperation({ summary: 'Get all liked videos' })
@@ -51,9 +51,9 @@ export class LikedVideoController {
   @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
   async remove(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Param('id') id: string,
   ) {
-    return this.likedVideoService.remove(id, refreshToken);
+    return this.likedVideoService.remove(id, accessToken);
   }
 }

@@ -60,10 +60,10 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('signout')
   async logout(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.userService.logout(refreshToken, res);
+    return this.userService.logout(accessToken, res);
   }
 
   @ApiOperation({ summary: 'Activate a user account' })
@@ -78,10 +78,10 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('subscribe')
   async subscribe(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() create: UserSubscribeDto,
   ) {
-    return this.userService.subscribe(refreshToken, create.channel_id);
+    return this.userService.subscribe(accessToken, create.channel_id);
   }
 
   @ApiOperation({ summary: 'Create a new liked video' })
@@ -89,10 +89,10 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('like')
   async like(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() create: UserLikeDto,
   ) {
-    return this.userService.like(refreshToken, create.video_id);
+    return this.userService.like(accessToken, create.video_id);
   }
 
   @ApiOperation({ summary: 'Create a new comment' })
@@ -100,10 +100,10 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('comment')
   async comment(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() create: UserCommentDto,
   ) {
-    return this.userService.comment(refreshToken, create.video_id, create.body);
+    return this.userService.comment(accessToken, create.video_id, create.body);
   }
 
   @ApiOperation({ summary: 'Get all users' })
@@ -128,11 +128,11 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Patch(':id')
   async update(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(id, refreshToken, updateUserDto);
+    return this.userService.update(id, accessToken, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Delete a user by ID' })
@@ -141,9 +141,9 @@ export class UserController {
   @UseGuards(JwtAuthActiveGuard)
   @Delete(':id')
   async remove(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Param('id') id: string,
   ) {
-    return this.userService.remove(id, refreshToken);
+    return this.userService.remove(id, accessToken);
   }
 }

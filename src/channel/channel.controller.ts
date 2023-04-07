@@ -73,10 +73,10 @@ export class ChannelController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('playlist')
   async playlist(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() create: ChannelPlaylistDto,
   ) {
-    return this.channelService.playlist(refreshToken, create.name);
+    return this.channelService.playlist(accessToken, create.name);
   }
 
   @ApiOperation({ summary: 'Add video to playlist' })
@@ -84,11 +84,11 @@ export class ChannelController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('playlist/add')
   async addToPlaylist(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Body() create: ChannelAddToPlaylistDto,
   ) {
     return this.channelService.addToPlaylist(
-      refreshToken,
+      accessToken,
       create.playlist_id,
       create.video_id,
     );

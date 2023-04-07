@@ -62,10 +62,10 @@ export class AdminController {
   @UseGuards(JwtAuthActiveGuard)
   @Post('signout')
   async logout(
-    @CookieGetter('refresh_token') refreshToken: string,
+    @CookieGetter('access_token') accessToken: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.adminService.logout(refreshToken, res);
+    return this.adminService.logout(accessToken, res);
   }
 
   @ApiOperation({ summary: 'Activate an admin' })

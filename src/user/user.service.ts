@@ -59,7 +59,7 @@ export class UserService {
         returning: true,
       },
     );
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('access_token', tokens.access_token, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
@@ -96,7 +96,7 @@ export class UserService {
         returning: true,
       },
     );
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('access_token', tokens.access_token, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
@@ -108,9 +108,9 @@ export class UserService {
     return response;
   }
 
-  async logout(refreshToken: string, res: Response) {
-    const userData = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async logout(accessToken: string, res: Response) {
+    const userData = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     if (!userData) {
       throw new ForbiddenException('User not found');
@@ -119,7 +119,7 @@ export class UserService {
       { hashed_refresh_token: null },
       { where: { id: userData.id }, returning: true },
     );
-    res.clearCookie('refresh_token');
+    res.clearCookie('access_token');
     const response = {
       message: 'User logged out successfully',
       user: updateUser[1][0],
@@ -145,26 +145,26 @@ export class UserService {
     return response;
   }
 
-  async subscribe(refreshToken: string, channel_id: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async subscribe(accessToken: string, channel_id: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     return this.subscriptionService.create({ user_id: user.id, channel_id });
   }
 
-  async like(refreshToken: string, video_id: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async like(accessToken: string, video_id: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     return this.likedVideoService.create(
       { user_id: user.id, video_id },
-      refreshToken,
+      accessToken,
     );
   }
 
-  async comment(refreshToken: string, video_id: string, body: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async comment(accessToken: string, video_id: string, body: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     return this.commentService.create({ user_id: user.id, video_id, body });
   }
@@ -187,8 +187,8 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, refreshToken: string, updateUserDto: UpdateUserDto) {
-    const user = await this.isOwner(id, refreshToken);
+  async update(id: string, accessToken: string, updateUserDto: UpdateUserDto) {
+    const user = await this.isOwner(id, accessToken);
     const username = await this.getUserByUsername(updateUserDto.username);
     if (username) {
       if (username.id != user.id) {
@@ -202,17 +202,17 @@ export class UserService {
     return this.findOne(id);
   }
 
-  async remove(id: string, refreshToken: string) {
-    const user = await this.isOwner(id, refreshToken);
+  async remove(id: string, accessToken: string) {
+    const user = await this.isOwner(id, accessToken);
     const deletedUser = await this.userRepository.destroy({
       where: { id, is_active: true },
     });
     return { message: 'User deleted' };
   }
 
-  async isOwner(user_id: string, refreshToken: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async isOwner(user_id: string, accessToken: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const userExist = await this.findOne(user.id);
     if (!userExist) {

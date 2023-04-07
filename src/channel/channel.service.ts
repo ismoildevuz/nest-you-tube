@@ -28,9 +28,9 @@ export class ChannelService {
     private readonly locationService: LocationService,
   ) {}
 
-  async playlist(refreshToken: string, name: string) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async playlist(accessToken: string, name: string) {
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const channel = await this.getByUserId(user.id);
     if (!channel) {
@@ -40,12 +40,12 @@ export class ChannelService {
   }
 
   async addToPlaylist(
-    refreshToken: string,
+    accessToken: string,
     playlist_id: string,
     video_id: string,
   ) {
-    const user = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+    const user = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     const channel = await this.getByUserId(user.id);
     if (!channel) {

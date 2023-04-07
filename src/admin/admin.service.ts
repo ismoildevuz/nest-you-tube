@@ -71,7 +71,7 @@ export class AdminService {
         returning: true,
       },
     );
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('access_token', tokens.access_token, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
@@ -108,7 +108,7 @@ export class AdminService {
         returning: true,
       },
     );
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('access_token', tokens.access_token, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
@@ -120,9 +120,9 @@ export class AdminService {
     return response;
   }
 
-  async logout(refreshToken: string, res: Response) {
-    const adminData = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_TOKEN_KEY,
+  async logout(accessToken: string, res: Response) {
+    const adminData = await this.jwtService.verify(accessToken, {
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
     if (!adminData) {
       throw new ForbiddenException('Admin not found');
@@ -131,7 +131,7 @@ export class AdminService {
       { hashed_refresh_token: null },
       { where: { id: adminData.id }, returning: true },
     );
-    res.clearCookie('refresh_token');
+    res.clearCookie('access_token');
     const response = {
       message: 'Admin logged out successfully',
       admin: updateAdmin[1][0],
