@@ -14,7 +14,7 @@ export class MailService {
     } else if (user instanceof Admin) {
       route = 'admin';
     }
-    const url = `${process.env.API_HOST}/api/${route}/activate/${user.activation_link}`;
+    const url = `${process.env.API_LOCAL_HOST}/api/${route}/activate/${user.activation_link}`;
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Welcome to YouTube! Confirm you Email!',
